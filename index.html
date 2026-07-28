@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#161412">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Cafe Mezban</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Hind+Siliguri:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --charcoal:#161412;
+    --charcoal-2:#1e1b17;
+    --slat:#2a2520;
+    --wood:#c9ad84;
+    --gold:#f2b341;
+    --gold-dim:#a97c2c;
+    --leaf:#3c5a40;
+    --leaf-light:#7a9b6e;
+    --cream:#f2ead9;
+    --rust:#b5651d;
+    --ink:#100e0c;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  html{-webkit-text-size-adjust:100%;}
+
+  html{
+    overscroll-behavior-y:none;
+  }
+
+  body{
+    background:var(--charcoal);
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    font-weight:300;
+    overflow-x:hidden;
+    -webkit-tap-highlight-color:transparent;
+    touch-action:pan-y;
+  }
+
+  body.menu-open{overflow:hidden;position:fixed;inset:0;width:100%;}
+
+  img{max-width:100%;height:auto;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+
+  a{color:inherit;text-decoration:none;}
+
+  .bn{font-family:'Hind Siliguri', sans-serif;}
+
+  h1,h2,h3{font-family:'Fraunces', serif;font-weight:600;}
+
+  ::selection{background:var(--gold);color:var(--ink);}
+
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+
+  /* ---------- slat texture ---------- */
+  .slats{
+    position:absolute;inset:0;
+    background-image:repeating-linear-gradient(90deg,
+      rgba(0,0,0,0.55) 0px, rgba(0,0,0,0.55) 3px,
+      transparent 3px, transparent 34px);
+    opacity:0.7;
+    pointer-events:none;
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px clamp(20px,5vw,64px);
+    padding-top:calc(18px + env(safe-area-inset-top));
+    padding-left:calc(clamp(20px,5vw,64px) + env(safe-area-inset-left));
+    padding-right:calc(clamp(20px,5vw,64px) + env(safe-area-inset-right));
+    background:linear-gradient(180deg, rgba(16,14,12,0.95), rgba(16,14,12,0));
+    backdrop-filter:blur(2px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-size:1.1rem;letter-spacing:0.03em;}
+  .brand svg{width:26px;height:26px;flex-shrink:0;}
+  nav ul{display:flex;gap:clamp(14px,3vw,36px);list-style:none;font-size:0.85rem;letter-spacing:0.04em;text-transform:uppercase;}
+  nav a{position:relative;padding-bottom:4px;}
+  nav a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:width .3s ease;}
+  @media (hover:hover) and (pointer:fine){
+    nav a:hover::after{width:100%;}
+  }
+  .nav-toggle{
+    display:none;background:none;border:1px solid var(--wood);color:var(--cream);
+    width:44px;height:44px;border-radius:50%;font-size:1.1rem;flex-shrink:0;
+    align-items:center;justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* mobile drawer */
+  .mobile-nav{
+    position:fixed;inset:0;z-index:99;
+    background:rgba(16,14,12,0.98);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;
+    opacity:0;visibility:hidden;transform:translateY(-8px);
+    transition:opacity .35s ease, transform .35s ease, visibility .35s;
+  }
+  .mobile-nav.open{opacity:1;visibility:visible;transform:translateY(0);}
+  .mobile-nav a{font-family:'Fraunces',serif;font-size:1.6rem;color:var(--cream);padding:6px 14px;}
+  .mobile-nav a:active{color:var(--gold);}
+  @media (hover:hover) and (pointer:fine){
+    .mobile-nav a:hover{color:var(--gold);}
+  }
+
+  @media (max-width:720px){
+    nav ul{display:none;}
+    .nav-toggle{display:flex;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 38%, #23201b 0%, var(--charcoal) 60%, var(--ink) 100%);
+    text-align:center;
+    padding:110px 20px 70px;
+  }
+
+  .ring-wrap{
+    position:relative;
+    width:min(68vw, 420px);
+    aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:8px;
+  }
+
+  @media (max-width:480px){
+    .hero{padding:100px 18px 60px;}
+    .ring-wrap{width:74vw;}
+  }
+  @media (max-width:380px){
+    .hero{padding:92px 16px 52px;}
+    .hero h1{font-size:1.3rem;margin-top:26px;}
+    .hero-en{letter-spacing:0.32em;}
+  }
+  .ring-glow{
+    position:absolute;inset:-6%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(242,179,65,0.35) 0%, rgba(242,179,65,0.08) 55%, transparent 75%);
+    filter:blur(6px);
+    animation:breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{opacity:0.75;transform:scale(1);}
+    50%{opacity:1;transform:scale(1.04);}
+  }
+  .ring{
+    position:absolute;inset:0;
+    border-radius:50%;
+    border:2px solid var(--gold);
+    box-shadow:0 0 24px 2px rgba(242,179,65,0.55), inset 0 0 30px rgba(242,179,65,0.25);
+  }
+  .ring::before{
+    content:'';
+    position:absolute;inset:14%;
+    border-radius:50%;
+    background-image:repeating-linear-gradient(90deg, rgba(0,0,0,0.5) 0px, rgba(0,0,0,0.5) 2px, transparent 2px, transparent 12px);
+    opacity:0.5;
+    mask-image:radial-gradient(circle, black 60%, transparent 78%);
+  }
+  .hero-mark{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .hero-mark svg{width:15%;min-width:44px;}
+  .hero-mark .bn{font-size:clamp(1.6rem, 5vw, 2.6rem);color:var(--gold);font-weight:700;}
+  .hero-en{
+    font-size:0.78rem;
+    letter-spacing:0.42em;
+    text-transform:uppercase;
+    color:var(--wood);
+  }
+
+  .hero h1{
+    margin-top:34px;
+    font-size:clamp(1.5rem, 3.4vw, 2.3rem);
+    font-weight:300;
+    font-style:italic;
+    max-width:640px;
+    color:var(--cream);
+    line-height:1.5;
+  }
+  .hero h1 em{font-style:normal;color:var(--gold);font-weight:600;}
+
+  .hero-cta{
+    margin-top:36px;
+    display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+    width:100%;
+  }
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:14px 30px;
+    min-height:44px;
+    border-radius:999px;
+    font-size:0.82rem;letter-spacing:0.08em;text-transform:uppercase;
+    border:1px solid var(--gold);
+    transition:all .25s ease;
+  }
+
+  @media (max-width:480px){
+    .hero-cta{flex-direction:column;align-items:stretch;}
+  }
+  .btn-solid{background:var(--gold);color:var(--ink);font-weight:600;}
+  .btn-solid:active{background:#ffcf6e;}
+  .btn-ghost{color:var(--cream);border-color:rgba(242,234,217,0.35);}
+  .btn-ghost:active{border-color:var(--gold);color:var(--gold);}
+  @media (hover:hover) and (pointer:fine){
+    .btn-solid:hover{background:#ffcf6e;box-shadow:0 0 22px rgba(242,179,65,0.5);}
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+  }
+
+  .scroll-cue{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    font-size:0.68rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--wood);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .scroll-cue span{width:1px;height:28px;background:linear-gradient(var(--gold), transparent);animation:drop 1.8s ease-in-out infinite;}
+  @keyframes drop{0%{opacity:0;transform:translateY(-6px);}50%{opacity:1;}100%{opacity:0;transform:translateY(10px);}}
+
+  /* ---------- section basics ---------- */
+  section{position:relative;padding:110px clamp(20px,6vw,80px);}
+  section:not(.hero){
+    content-visibility:auto;
+    contain-intrinsic-size:auto 900px;
+  }
+  .eyebrow{
+    font-size:0.72rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--gold-dim);
+    display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  }
+  .eyebrow::before{content:'';width:26px;height:1px;background:var(--gold-dim);}
+  .section-head{max-width:720px;margin-bottom:56px;}
+  .section-head h2{font-size:clamp(1.7rem, 4vw, 3rem);color:var(--cream);line-height:1.2;}
+  .section-head p{margin-top:16px;font-size:1rem;line-height:1.7;color:#cfc6b5;max-width:56ch;}
+
+  @media (max-width:600px){
+    section{padding:72px 20px;}
+    .section-head{margin-bottom:40px;}
+  }
+  @media (max-width:380px){
+    section{padding:56px 16px;}
+    .section-head h2{font-size:1.5rem;}
+  }
+
+  /* ---------- about / mezban meaning ---------- */
+  .about{background:var(--charcoal-2);}
+  .about-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,80px);align-items:center;
+  }
+  .about-photo{
+    position:relative;border-radius:6px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+  }
+  .about-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(1.05) contrast(1.03);}
+  @media (max-width:820px){
+    .about-photo img{aspect-ratio:4/5;}
+  }
+  .about-photo::after{
+    content:'';position:absolute;inset:0;
+    box-shadow:inset 0 0 60px 10px rgba(0,0,0,0.35);
+    border:1px solid rgba(242,179,65,0.25);
+  }
+  .about-text p{font-size:1.02rem;line-height:1.85;color:#d8cfbe;margin-bottom:20px;}
+  .about-text p:first-of-type::first-letter{
+    font-family:'Fraunces',serif;font-size:3.4rem;float:left;line-height:0.8;padding:6px 10px 0 0;color:var(--gold);font-weight:700;
+  }
+  .word-tag{
+    display:inline-block;margin-top:8px;padding:10px 18px;border:1px solid var(--gold-dim);
+    border-radius:999px;font-size:0.8rem;letter-spacing:0.06em;color:var(--gold);
+  }
+
+  /* ---------- menu ---------- */
+  .menu{background:var(--charcoal);}
+  .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:40px 60px;}
+  @media (max-width:820px){.menu-grid{grid-template-columns:1fr;gap:36px;}}
+  .menu-cat h3{
+    font-size:1.2rem;color:var(--gold);margin-bottom:20px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .menu-cat h3::after{content:'';flex:1;height:1px;background:linear-gradient(90deg, var(--gold-dim), transparent);}
+  .menu-item{
+    display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+    padding:14px 0;border-bottom:1px dashed rgba(201,173,132,0.25);
+  }
+  .menu-item:last-child{border-bottom:none;}
+  .menu-item .name{font-size:1rem;color:var(--cream);}
+  .menu-item .desc{display:block;font-size:0.8rem;color:#a89d89;margin-top:4px;font-weight:300;line-height:1.5;}
+  .menu-item .price{
+    font-family:'IBM Plex Mono', monospace;font-size:0.92rem;color:var(--wood);white-space:nowrap;
+  }
+
+  @media (max-width:400px){
+    .menu-item{flex-direction:column;align-items:flex-start;gap:4px;}
+    .menu-item .price{font-size:0.85rem;}
+  }
+  .menu-note{
+    margin-top:50px;font-size:0.85rem;color:#8f8570;font-style:italic;
+  }
+
+  /* ---------- order online ---------- */
+  .order{
+    background:var(--ink);
+    text-align:center;
+    overflow:hidden;
+  }
+  .order-ring{
+    position:relative;max-width:720px;margin:0 auto;
+    padding:60px 26px;border-radius:24px;
+    background:radial-gradient(ellipse at 50% 0%, rgba(242,179,65,0.12), transparent 70%);
+    border:1px solid rgba(242,179,65,0.2);
+  }
+  .order h2{font-size:clamp(1.6rem,3.6vw,2.6rem);color:var(--cream);margin-bottom:16px;}
+  .order p{color:#cfc6b5;font-size:1rem;max-width:46ch;margin:0 auto 30px;line-height:1.7;}
+  .order-domain{
+    font-family:'IBM Plex Mono', monospace;font-size:1.05rem;color:var(--gold);letter-spacing:0.02em;
+    word-break:break-word;
+  }
+
+  @media (max-width:480px){
+    .order-ring{padding:48px 20px;}
+  }
+
+  /* ---------- visit / contact ---------- */
+  .visit{background:var(--charcoal-2);}
+  .visit-grid{
+    display:grid;grid-template-columns:1.1fr 0.9fr;gap:clamp(30px,6vw,80px);
+  }
+  @media (max-width:820px){.visit-grid{grid-template-columns:1fr;}}
+  .info-block{margin-bottom:34px;}
+  .info-block h4{
+    font-size:0.75rem;letter-spacing:0.24em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;
+  }
+  .info-block p, .info-block a{font-size:1.05rem;color:var(--cream);line-height:1.7;}
+  .info-block a{display:inline-block;padding:2px 0;min-height:44px;display:inline-flex;align-items:center;}
+  .info-block a:active{color:var(--gold);}
+  @media (hover:hover) and (pointer:fine){
+    .info-block a:hover{color:var(--gold);}
+  }
+  .hours-row{display:flex;justify-content:space-between;gap:12px;max-width:340px;padding:8px 0;border-bottom:1px solid rgba(201,173,132,0.15);font-size:0.95rem;}
+  .hours-row span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--wood);white-space:nowrap;}
+
+  .map-card{
+    border-radius:6px;overflow:hidden;border:1px solid rgba(242,179,65,0.2);
+    min-height:220px;position:relative;
+    background:var(--slat);
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  @media (max-width:480px){
+    .map-card{min-height:180px;}
+  }
+  .map-card .slats{opacity:0.4;}
+  .map-card span{
+    position:relative;z-index:2;font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--wood);
+    text-align:center;padding:20px;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    padding:40px clamp(20px,6vw,80px);
+    display:flex;flex-wrap:wrap;gap:16px;
+    align-items:center;justify-content:space-between;
+    border-top:1px solid rgba(201,173,132,0.15);
+    font-size:0.8rem;color:#8f8570;
+  }
+  footer .brand{font-size:0.95rem;}
+  .footer-links{display:flex;gap:22px;flex-wrap:wrap;}
+  .footer-links a{padding:8px 2px;}
+  .footer-links a:active{color:var(--gold);}
+  @media (hover:hover) and (pointer:fine){
+    .footer-links a:hover{color:var(--gold);}
+  }
+
+  @media (max-width:520px){
+    footer{flex-direction:column;align-items:flex-start;gap:14px;}
+  }
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease, transform .8s ease;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="slats" style="position:fixed;z-index:0;"></div>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="17" stroke="#f2b341" stroke-width="1.6"/><path d="M13 26V14l7 8 7-8v12" stroke="#f2b341" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Cafe Mezban
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#about">Story</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#order">Order</a></li>
+      <li><a href="#visit">Visit</a></li>
+    </ul>
+  </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+</header>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about">Story</a>
+  <a href="#menu">Menu</a>
+  <a href="#order">Order</a>
+  <a href="#visit">Visit</a>
+</div>
+
+<main>
+
+  <section class="hero">
+    <div class="ring-wrap">
+      <div class="ring-glow"></div>
+      <div class="ring"></div>
+      <div class="hero-mark">
+        <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="17" stroke="#f2b341" stroke-width="1.6"/><path d="M13 26V14l7 8 7-8v12" stroke="#f2b341" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="bn">ক্যাফে মেজবান</div>
+        <div class="hero-en"><br></div>
+      </div>
+    </div>
+    <h1>মেজবান মানে শুধু খাবার পরিবেশন নয়, হৃদয় দিয়ে আপ্যায়ন করা। <br><em>ক্যাফে মেজবানে</em> প্রতিটি পদ, প্রতিটি মুহূর্তই আপনার জন্য।</h1>
+    <div class="hero-cta">
+      <a href="#order" class="btn btn-solid">Order Online</a>
+      <a href="#menu" class="btn btn-ghost">See the Menu</a>
+    </div>
+    <div class="scroll-cue"><span></span>Scroll</div>
+  </section>
+
+  <section class="about" id="about">
+    <div class="about-grid">
+      <div class="about-photo reveal">
+        <img src="images/cafe-interior.png" alt="The living wall and glowing circular signage inside Cafe Mezban" loading="lazy">
+      </div>
+      <div class="about-text reveal">
+        <div class="eyebrow">The Space</div>
+        <p>Walk in and the first thing you notice is the light &mdash; a ring of warm gold set into a wall of vines and timber slats, the kind of glow that makes you want to stay a while.</p>
+        <p>That's deliberate. A mezban doesn't rush a guest. Our corner seats, low leather cushions, and the green wall that climbs toward the rafters are built for lingering &mdash; over one cup, or four.</p>
+        <span class="word-tag">মেজবান &nbsp;·&nbsp; noun &nbsp;·&nbsp; one who hosts generously</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="menu" id="menu">
+    <div class="section-head">
+      <div class="eyebrow">The Menu</div>
+      <h2>Small plates, slow chai, honest prices.</h2>
+      <p>A placeholder spread for now &mdash; swap in your real dishes and prices whenever they're ready. Everything here is styled and ready to go.</p>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-cat">
+        <h3>Chai &amp; Coffee</h3>
+        <div class="menu-item">
+          <div><div class="name">Mezban Doodh Chai</div><span class="desc">House-spiced milk tea, cardamom &amp; ginger</span></div>
+          <div class="price">৳ 60</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Ronger Chai</div><span class="desc">Black tea, rock sugar</span></div>
+          <div class="price">৳ 40</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Cold Brew</div><span class="desc">Slow-steeped, served over ice</span></div>
+          <div class="price">৳ 150</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Malai Coffee</div><span class="desc">Espresso, cream, palm jaggery</span></div>
+          <div class="price">৳ 180</div>
+        </div>
+      </div>
+
+      <div class="menu-cat">
+        <h3>Snacks &amp; Street Food</h3>
+        <div class="menu-item">
+          <div><div class="name">Fuchka Platter</div><span class="desc">Tamarind water, spiced potato, chickpea</span></div>
+          <div class="price">৳ 120</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Chicken Shingara</div><span class="desc">Crisp pastry, minced chicken filling</span></div>
+          <div class="price">৳ 90</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Beef Tehari Bowl</div><span class="desc">Mustard-oil rice, slow-cooked beef</span></div>
+          <div class="price">৳ 250</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Chotpoti</div><span class="desc">Tangy stewed peas, egg, tamarind</span></div>
+          <div class="price">৳ 110</div>
+        </div>
+      </div>
+
+      <div class="menu-cat">
+        <h3>Mains</h3>
+        <div class="menu-item">
+          <div><div class="name">Kacchi Biryani</div><span class="desc">Mutton, saffron rice, ghee-fried onion</span></div>
+          <div class="price">৳ 380</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Mezban Beef Curry</div><span class="desc">Slow-simmered, our signature spice blend</span></div>
+          <div class="price">৳ 320</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Grilled Bhetki</div><span class="desc">River fish, mustard marinade</span></div>
+          <div class="price">৳ 350</div>
+        </div>
+      </div>
+
+      <div class="menu-cat">
+        <h3>Something Sweet</h3>
+        <div class="menu-item">
+          <div><div class="name">Bhapa Pitha</div><span class="desc">Steamed rice cake, date molasses, coconut</span></div>
+          <div class="price">৳ 80</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Mishti Doi</div><span class="desc">Caramelised sweet yoghurt</span></div>
+          <div class="price">৳ 70</div>
+        </div>
+        <div class="menu-item">
+          <div><div class="name">Roshomalai Cake</div><span class="desc">House bake, saffron cream</span></div>
+          <div class="price">৳ 160</div>
+        </div>
+      </div>
+    </div>
+    <p class="menu-note">Prices &amp; dishes shown are placeholders &mdash; update freely with your real menu.</p>
+  </section>
+
+  <section class="order" id="order">
+    <div class="order-ring">
+      <div class="eyebrow" style="justify-content:center;">Order Online</div>
+      <h2>Bring the mezban table home.</h2>
+      <p>Order for delivery or pickup through our partner. Same food, same care, wherever you're eating it.</p>
+      <a href="https://proiojon.com/restaurants/cafe-mezban" class="btn btn-solid" target="_blank" rel="noopener">Order via proiojon.com</a>
+      <div style="margin-top:22px;" class="order-domain">proiojon.com/cafe-mezban</div>
+    </div>
+  </section>
+
+  <section class="visit" id="visit">
+    <div class="section-head">
+      <div class="eyebrow">Visit Us</div>
+      <h2>Come sit under the ring of light.</h2>
+    </div>
+    <div class="visit-grid">
+      <div>
+        <div class="info-block">
+          <h4>Address</h4>
+          <p>বঙ্গবন্ধু সড়ক,<br>শিল্পকলা এর বিপরীতে,<br> ঝিনাইদহ।</p>
+        </div>
+        <div class="info-block">
+          <h4>Phone</h4>
+          <a href="tel:+8800000000000">+880 000 000 0000</a>
+        </div>
+        <div class="info-block">
+          <h4>Email</h4>
+          <a href="mailto:hello@cafemezban.com">hello@cafemezban.com</a>
+        </div>
+        <div class="info-block">
+          <h4>Hours</h4>
+          <div class="hours-row"><span>Sat &ndash; Wed</span><span>10:00 &ndash; 23:00</span></div>
+          <div class="hours-row"><span>Thu &ndash; Fri</span><span>10:00 &ndash; 00:00</span></div>
+        </div>
+      </div>
+      <div class="map-card">
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d231.57559145316193!2d89.17332541197537!3d23.54743635126823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39fee5401b3e9c4b%3A0x39a2d70327506ad2!2sCafe%20Mezban!5e1!3m2!1sen!2sbd!4v1785256532602!5m2!1sen!2sbd"
+    width="100%"
+    height="100%"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </iframe>
+</div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="brand">Cafe Mezban</div>
+  <div class="footer-links">
+    <a href="#menu">Menu</a>
+    <a href="#order">Order</a>
+    <a href="#visit">Visit</a>
+  </div>
+  <div>&copy; 2026 Cafe Mezban. Demo site.</div>
+</footer>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  let lockedScrollY = 0;
+
+  function openMobileNav(){
+    lockedScrollY = window.scrollY;
+    mobileNav.classList.add('open');
+    document.body.classList.add('menu-open');
+    document.body.style.top = `-${lockedScrollY}px`;
+    navToggle.setAttribute('aria-expanded','true');
+    navToggle.textContent = '✕';
+  }
+
+  function closeMobileNav(){
+    mobileNav.classList.remove('open');
+    document.body.classList.remove('menu-open');
+    document.body.style.top = '';
+    navToggle.setAttribute('aria-expanded','false');
+    navToggle.textContent = '☰';
+    window.scrollTo(0, lockedScrollY);
+  }
+
+  navToggle.addEventListener('click', ()=>{
+    mobileNav.classList.contains('open') ? closeMobileNav() : openMobileNav();
+  });
+  mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click', closeMobileNav));
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
