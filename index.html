@@ -397,6 +397,28 @@
 
   .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease, transform .8s ease;}
   .reveal.in{opacity:1;transform:translateY(0);}
+  @media (max-width: 768px) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ring-wrap {
+    order: 1;
+  }
+
+  .hero h1 {
+    order: 2;
+    margin-top: 24px;
+  }
+
+  .hero-cta {
+    order: 3;
+    margin-top: 28px;
+  }
+}
 </style>
 </head>
 <body>
