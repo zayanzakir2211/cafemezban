@@ -419,6 +419,20 @@
     margin-top: 28px;
   }
 }
+@media (max-width: 768px) {
+  .about-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-photo {
+    order: 0;
+  }
+
+  .about-text {
+    order: 1;
+  }
+}
 </style>
 </head>
 <body>
@@ -470,14 +484,13 @@
 
   <section class="about" id="about">
     <div class="about-grid">
-      <div class="about-photo reveal">
+      <div  class="about-photo reveal">
         <img src="cafe-interior.png" alt="The living wall and glowing circular signage inside Cafe Mezban" loading="lazy">
       </div>
       <div class="about-text reveal">
         <div class="eyebrow">The Space</div>
         <p>Walk in and the first thing you notice is the light &mdash; a ring of warm gold set into a wall of vines and timber slats, the kind of glow that makes you want to stay a while.</p>
         <p>That's deliberate. A mezban doesn't rush a guest. Our corner seats, low leather cushions, and the green wall that climbs toward the rafters are built for lingering &mdash; over one cup, or four.</p>
-        <span class="word-tag">মেজবান &nbsp;·&nbsp; noun &nbsp;·&nbsp; one who hosts generously</span>
       </div>
     </div>
   </section>
