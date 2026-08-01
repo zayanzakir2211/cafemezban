@@ -187,7 +187,7 @@
     position:relative;
     min-height:100vh;
     min-height:100dvh;
-    display:flex;align-items:center;justify-content:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
     background:radial-gradient(ellipse at 50% 38%, #23201b 0%, var(--charcoal) 60%, var(--ink) 100%);
     text-align:center;
     padding:110px 20px 70px;
@@ -199,6 +199,7 @@
     aspect-ratio:1/1;
     display:flex;align-items:center;justify-content:center;
     margin-bottom:8px;
+    flex-shrink:0;
   }
 
   @media (max-width:480px){
@@ -456,25 +457,92 @@
 
   .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease, transform .8s ease;}
   .reveal.in{opacity:1;transform:translateY(0);}
-  @media (max-width: 768px) {
-  .hero {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+
+  /* ============================================================
+     Enhancement pass — atmosphere, motion & structure polish
+     ============================================================ */
+
+  button{cursor:pointer;}
+  .btn,nav a,.footer-links a,.mobile-nav a,.info-block a{cursor:pointer;}
+
+  /* --- film grain: warm, near-invisible, adds depth to flat fills --- */
+  .grain{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    opacity:0.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  @media (prefers-reduced-motion: reduce){ .grain{display:none;} }
+
+  /* --- header: transparent over hero, solid once scrolled --- */
+  header{transition:background .4s ease, backdrop-filter .4s ease, border-color .4s ease;
+    border-bottom:1px solid transparent;}
+  header.scrolled{
+    background:rgba(16,14,12,0.92);
+    backdrop-filter:blur(10px) saturate(1.1);
+    border-bottom-color:rgba(242,179,65,0.16);
+  }
+  .nav-toggle svg{width:20px;height:20px;}
+  .nav-toggle .icon-close{display:none;}
+  .nav-toggle[aria-expanded="true"] .icon-open{display:none;}
+  .nav-toggle[aria-expanded="true"] .icon-close{display:block;}
+  @media (hover:hover) and (pointer:fine){
+    .nav-toggle:hover{border-color:var(--gold);color:var(--gold);}
   }
 
-  .ring-wrap {
-    order: 1;
+  /* --- scroll-spy: current section stays lit --- */
+  nav a.active{color:var(--gold);}
+  nav a.active::after{width:100%;}
+
+  /* --- buttons: arrow that leans into the hover --- */
+  .btn svg{width:15px;height:15px;transition:transform .25s ease;}
+  .btn-solid:active svg,.btn-ghost:active svg{transform:translateX(3px);}
+  @media (hover:hover) and (pointer:fine){
+    .btn-solid:hover svg,.btn-ghost:hover svg{transform:translateX(4px);}
   }
 
+  /* --- hallmarks: three true facts, at a glance --- */
+  .hallmarks{
+    background:var(--charcoal-2);
+    padding:0 clamp(20px,6vw,80px);
+    border-top:1px solid rgba(201,173,132,0.10);
+    border-bottom:1px solid rgba(201,173,132,0.10);
+  }
+  .hallmarks-inner{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    max-width:1080px;margin:0 auto;
+  }
+  .hallmark{display:flex;align-items:center;gap:15px;padding:26px 22px;}
+  .hallmark + .hallmark{border-left:1px solid rgba(201,173,132,0.10);}
+  .hallmark svg{width:26px;height:26px;stroke:var(--gold);fill:none;flex-shrink:0;}
+  .hallmark strong{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:1rem;color:var(--cream);}
+  .hallmark span{display:block;font-size:0.8rem;color:#a89d89;margin-top:3px;line-height:1.4;}
+  @media (max-width:720px){
+    .hallmarks-inner{grid-template-columns:1fr;}
+    .hallmark + .hallmark{border-left:none;border-top:1px solid rgba(201,173,132,0.10);}
+    .hallmark{padding:20px 10px;}
+  }
+
+  /* --- menu: category icons, row hover, signature tag --- */
+  .menu-cat h3 svg{width:19px;height:19px;stroke:var(--gold);fill:none;flex-shrink:0;}
+  .menu-item{margin:0 -14px;padding:14px;border-radius:10px;
+    transition:background .25s ease;}
+  .menu-item .price{transition:color .25s ease;}
+  @media (hover:hover) and (pointer:fine){
+    .menu-item:hover{background:rgba(242,179,65,0.05);}
+    .menu-item:hover .price{color:var(--gold);}
+  }
+  .tag{
+    display:inline-block;margin-left:9px;padding:2px 9px;
+    font-family:'Work Sans',sans-serif;font-size:0.58rem;font-weight:500;
+    letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);
+    border:1px solid var(--gold-dim);border-radius:999px;vertical-align:middle;
+  }
+  @media (max-width:768px) {
   .hero h1 {
-    order: 2;
     margin-top: 24px;
   }
 
   .hero-cta {
-    order: 3;
     margin-top: 28px;
   }
 }
@@ -497,6 +565,7 @@
 <body>
 
 <div class="slats" style="position:fixed;z-index:0;"></div>
+<div class="grain" aria-hidden="true"></div>
 
 <header>
   <div class="brand">
@@ -511,7 +580,10 @@
       <li><a href="#visit">Visit</a></li>
     </ul>
   </nav>
-  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 8h16M4 16h16"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
 </header>
 
 <div class="mobile-nav" id="mobileNav">
@@ -530,16 +602,32 @@
       <div class="hero-mark">
         <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="17" stroke="#f2b341" stroke-width="1.6"/><path d="M13 26V14l7 8 7-8v12" stroke="#f2b341" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <div class="bn">ক্যাফে মেজবান</div>
-        <div class="hero-en"><br></div>
+        <div class="hero-en">Jhenidah &middot; Bangladesh</div>
       </div>
     </div>
     <h1>মেজবান মানে শুধু খাবার পরিবেশন নয়, হৃদয় দিয়ে আপ্যায়ন করা। <br><em>ক্যাফে মেজবানে</em> প্রতিটি পদ, প্রতিটি মুহূর্তই আপনার জন্য।</h1>
-    <p style="max-width:760px;margin-top:18px;font-size:1rem;line-height:1.8;color:#cfc6b5;">If you are searching for <strong>Cafe Mezban</strong> or a trusted <strong>restaurant near me in Jhenidah</strong>, this is the place for mezban-style food, chai, snacks, biryani, and a warm dine-in experience.</p>
     <div class="hero-cta">
-      <a href="#order" class="btn btn-solid">Order Online</a>
-      <a href="#menu" class="btn btn-ghost">See the Menu</a>
+      <a href="#order" class="btn btn-solid">Order Online <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a href="#menu" class="btn btn-ghost">See the Menu <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
-    
+
+  </section>
+
+  <section class="hallmarks" aria-label="Cafe Mezban at a glance">
+    <div class="hallmarks-inner">
+      <div class="hallmark">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div><strong>Open late</strong><span>Till midnight, Thu &amp; Fri</span></div>
+      </div>
+      <div class="hallmark">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h13v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M16 9h2a2 2 0 0 1 0 4h-2"/><path d="M7 3v2M11 3v2"/></svg>
+        <div><strong>Dine-in &amp; delivery<sub> (Via Proyojon)</sub></strong><span>Sit in, or order online</span></div>
+      </div>
+      <div class="hallmark">
+        <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.3 7-11a7 7 0 0 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <div><strong>Opposite of Shilpokola</strong><span>Bangabandhu Road, Jhenidah</span></div>
+      </div>
+    </div>
   </section>
 
   <section class="about" id="about">
@@ -564,7 +652,7 @@
 
     <div class="menu-grid">
       <div class="menu-cat">
-        <h3>Chai &amp; Coffee</h3>
+        <h3><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v4a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2"/><path d="M7 3c0 1.5-1 1.5-1 3M11 3c0 1.5-1 1.5-1 3"/></svg>Chai &amp; Coffee</h3>
         <div class="menu-item">
           <div><div class="name">Mezban Doodh Chai</div><span class="desc">House-spiced milk tea, cardamom &amp; ginger</span></div>
           <div class="price">৳ 60</div>
@@ -584,7 +672,7 @@
       </div>
 
       <div class="menu-cat">
-        <h3>Snacks &amp; Street Food</h3>
+        <h3><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18M5 8h4M9 3v18"/><path d="M15 3c2 2 3 4 3 7s-1 5-3 7"/><path d="M19 3c2.5 2.5 3.5 5 3.5 8"/></svg>Snacks &amp; Street Food</h3>
         <div class="menu-item">
           <div><div class="name">Fuchka Platter</div><span class="desc">Tamarind water, spiced potato, chickpea</span></div>
           <div class="price">৳ 120</div>
@@ -604,9 +692,9 @@
       </div>
 
       <div class="menu-cat">
-        <h3>Mains</h3>
+        <h3><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 4 0 0 0 18 0"/><path d="M3 12a9 4 0 0 1 18 0"/><path d="M8 8V6M12 8V5M16 8V6"/></svg>Mains</h3>
         <div class="menu-item">
-          <div><div class="name">Kacchi Biryani</div><span class="desc">Mutton, saffron rice, ghee-fried onion</span></div>
+          <div><div class="name">Kacchi Biryani <span class="tag">Signature</span></div><span class="desc">Mutton, saffron rice, ghee-fried onion</span></div>
           <div class="price">৳ 380</div>
         </div>
         <div class="menu-item">
@@ -620,7 +708,7 @@
       </div>
 
       <div class="menu-cat">
-        <h3>Something Sweet</h3>
+        <h3><svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16l-2-9H6l-2 9z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M12 4V2"/></svg>Something Sweet</h3>
         <div class="menu-item">
           <div><div class="name">Bhapa Pitha</div><span class="desc">Steamed rice cake, date molasses, coconut</span></div>
           <div class="price">৳ 80</div>
@@ -643,8 +731,8 @@
       <div class="eyebrow" style="justify-content:center;">Order Online</div>
       <h2>Bring the mezban table home.</h2>
       <p>Order for delivery or pickup through our partner. Same food, same care, wherever you're eating it.</p>
-      <a href="https://proiojon.com/restaurants/cafe-mezban" class="btn btn-solid" target="_blank" rel="noopener">Order via proiojon.com</a>
-      <div style="margin-top:22px;" class="order-domain">proiojon.com/cafe-mezban</div>
+      <a href="https://proiojon.com/restaurants/cafe-mezban" class="btn btn-solid" target="_blank" rel="noopener">Order via proyojon.com <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <div style="margin-top:22px;" class="order-domain">Cafe Mezban on Proyojon</div>
     </div>
   </section>
 
@@ -710,7 +798,7 @@
     document.body.classList.add('menu-open');
     document.body.style.top = `-${lockedScrollY}px`;
     navToggle.setAttribute('aria-expanded','true');
-    navToggle.textContent = '✕';
+    navToggle.setAttribute('aria-label','Close menu');
   }
 
   function closeMobileNav(){
@@ -718,7 +806,7 @@
     document.body.classList.remove('menu-open');
     document.body.style.top = '';
     navToggle.setAttribute('aria-expanded','false');
-    navToggle.textContent = '☰';
+    navToggle.setAttribute('aria-label','Open menu');
     window.scrollTo(0, lockedScrollY);
   }
 
@@ -732,6 +820,25 @@
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, {threshold:0.15});
   revealEls.forEach(el=>io.observe(el));
+
+  // header goes solid once the hero scrolls away
+  const header = document.querySelector('header');
+  const onScroll = ()=>{ header.classList.toggle('scrolled', window.scrollY > 40); };
+  onScroll();
+  window.addEventListener('scroll', onScroll, {passive:true});
+
+  // scroll-spy: keep the current section lit in the nav
+  const navLinks = Array.from(document.querySelectorAll('nav a'));
+  const linkFor = id => navLinks.find(a => a.getAttribute('href') === '#' + id);
+  const spy = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        navLinks.forEach(a=>a.classList.remove('active'));
+        linkFor(e.target.id)?.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-45% 0px -50% 0px'});
+  document.querySelectorAll('main section[id]').forEach(s=>spy.observe(s));
 </script>
 
 </body>
